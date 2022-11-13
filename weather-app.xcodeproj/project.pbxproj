@@ -56,10 +56,10 @@
 		05BFFC1B292156A7006C0B3B /* weather-app */ = {
 			isa = PBXGroup;
 			children = (
-				05BFFC1C292156A7006C0B3B /* AppDelegate.swift */,
-				05BFFC1E292156A7006C0B3B /* SceneDelegate.swift */,
 				05BFFC20292156A7006C0B3B /* ViewController.swift */,
 				05BFFC22292156A7006C0B3B /* Main.storyboard */,
+				05BFFC1C292156A7006C0B3B /* AppDelegate.swift */,
+				05BFFC1E292156A7006C0B3B /* SceneDelegate.swift */,
 				05BFFC25292156AE006C0B3B /* Assets.xcassets */,
 				05BFFC27292156AE006C0B3B /* LaunchScreen.storyboard */,
 				05BFFC2A292156AE006C0B3B /* Info.plist */,
