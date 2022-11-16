@@ -7,9 +7,12 @@
 
 import UIKit
 
-class WeatherViewController: UIViewController {
-    
-    // MARK: - Outlets
+protocol WeatherViewControllerProtocol{
+    func setWeather(weatherModel: WeatherModel)
+    func presentAlert(message: String)
+}
+
+class WeatherViewController: UIViewController, WeatherViewControllerProtocol {
     
     @IBOutlet weak var cityNameLabel: UILabel!
     @IBOutlet weak var conditionImage: UIImageView!
@@ -18,38 +21,37 @@ class WeatherViewController: UIViewController {
     @IBOutlet weak var lowTemperatureLabel: UILabel!
     @IBOutlet weak var highTemperatureLabel: UILabel!
     
-    var weatherService = WeatherService()
+    private var presenter: WeatherPresenterProtocol
+    
+    init(presenter: WeatherPresenterProtocol) {
+        self.presenter = presenter
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        weatherService.delegate = self
-        
-        weather("Joinville")
+        self.getWeather(city: "Joinville")
     }
     
-    func weather(_ city: String) {
+    private func getWeather(city: String){
         createSpinnerView()
-        weatherService.weather(city)
+        self.presenter.getWeather(city: city)
     }
     
-}
-
-//MARK: - WeatherManagerDelegate
-
-extension WeatherViewController: WeatherServiceDelegate{
-    
-    func didUpdateWeather(_ weather: WeatherModel){
-        self.cityNameLabel.text = weather.cityName
-        self.conditionImage.image = UIImage(systemName: weather.conditionImage)
-        self.temperatureLabel.text = weather.temperatureToString
-        self.descriptionLabel.text = weather.description.capitalized
-        self.lowTemperatureLabel.text = weather.lowestTemperatureToString
-        self.highTemperatureLabel.text = weather.highestTemperatureToString
-    }
-    
-    func didFailWithError(errorMessage: String) {
-        self.presentAlert(message: errorMessage)
+    func setWeather(weatherModel: WeatherModel){
+        self.cityNameLabel.text = weatherModel.cityName
+        self.conditionImage.image = UIImage(systemName: weatherModel.conditionImage)
+        self.temperatureLabel.text = weatherModel.temperatureToString
+        self.descriptionLabel.text = weatherModel.description.capitalized
+        self.lowTemperatureLabel.text = weatherModel.lowestTemperatureToString
+        self.highTemperatureLabel.text = weatherModel.highestTemperatureToString
     }
 }
+
+
 

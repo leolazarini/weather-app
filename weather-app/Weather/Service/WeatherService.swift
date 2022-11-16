@@ -7,49 +7,55 @@
 
 import Foundation
 
-protocol WeatherServiceDelegate {
-    func didUpdateWeather(_ weather: WeatherModel)
-    func didFailWithError(errorMessage: String)
+typealias WeatherCompletion = (Result<WeatherModel, NetworkError>) -> Void
+
+enum NetworkError: Error {
+    case badURL
+    case serviceInternalError(_ error: Error)
+    case noData
+    case decodeError(_ error: Error)
 }
 
-final class WeatherService {
+protocol WeatherServiceProtocol {
+    func fetchWeater(city: String, _ completion: @escaping WeatherCompletion)
+}
+
+final class WeatherService: WeatherServiceProtocol {
     let session: URLSession
     var baseUrl = Constants.baseUrl
-    
-    var delegate: WeatherServiceDelegate?
     
     init(session: URLSession = URLSession.shared) {
         self.session = session
     }
     
-    func weather(_ endpoint: String) {
-        if let url = URL(string: baseUrl + endpoint) {
-            
-            session.dataTask(with: url) { (data, response, error) in
-                DispatchQueue.main.async {
-                    if let error = error {
-                        self.delegate?.didFailWithError(errorMessage: error.localizedDescription)
-                    }
-                    if let data = data {
-                        do {
-                            let weatherData = try JSONDecoder().decode(WeatherData.self, from: data)
-                            let weather = WeatherModel(
-                                conditionId: weatherData.weather[0].id,
-                                cityName: weatherData.name,
-                                temperature: weatherData.main.temp,
-                                description: weatherData.weather[0].description,
-                                lowestTemperature: weatherData.main.temp_min,
-                                highestTemperature: weatherData.main.temp_max
-                            )
-                            self.delegate?.didUpdateWeather(weather)
-                        } catch let error {
-                            self.delegate?.didFailWithError(errorMessage: error.localizedDescription)
-                        }
-                    } else {
-                        self.delegate?.didFailWithError(errorMessage: error!.localizedDescription)
-                    }
-                }
-            }.resume()
+    func fetchWeater(city: String, _ completion: @escaping WeatherCompletion) {
+        guard let url = URL(string: baseUrl + city) else {
+            completion(.failure(.badURL))
+            return
         }
+        
+        session.dataTask(with: url) { (data, response, error) in
+            DispatchQueue.main.async {
+                if let error = error {
+                    completion(.failure(.serviceInternalError(error)))
+                }
+                
+                if let data = data {
+                    do {
+                        let weatherData = try JSONDecoder().decode(WeatherData.self, from: data)
+                        let weatherModel = self.parseWeatherData(weatherData: weatherData)
+                        completion(.success(weatherModel))
+                    } catch let error {
+                        completion(.failure(.decodeError(error)))
+                    }
+                } else {
+                    completion(.failure(.noData))
+                }
+            }
+        }.resume()
+    }
+    
+    func parseWeatherData(weatherData: WeatherData) -> WeatherModel {
+        return WeatherModel(conditionId: weatherData.weather[0].id, cityName: weatherData.name, temperature: weatherData.main.temp, description: weatherData.weather[0].description, lowestTemperature: weatherData.main.temp_min, highestTemperature: weatherData.main.temp_max)
     }
 }
