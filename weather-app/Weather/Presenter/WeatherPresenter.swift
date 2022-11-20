@@ -8,6 +8,7 @@
 import UIKit
 
 protocol WeatherPresenterProtocol {
+    var viewController: WeatherViewControllerProtocol? { get set }
     func getWeather(city: String)
 }
 

@@ -21,20 +21,20 @@ class WeatherViewController: UIViewController, WeatherViewControllerProtocol {
     @IBOutlet weak var lowTemperatureLabel: UILabel!
     @IBOutlet weak var highTemperatureLabel: UILabel!
     
-    private var presenter: WeatherPresenterProtocol
+    private var presenter: WeatherPresenterProtocol = WeatherPresenter(service: WeatherService())
     
-    init(presenter: WeatherPresenterProtocol) {
-        self.presenter = presenter
-        super.init(nibName: nil, bundle: nil)
-    }
-    
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
+//    init(presenter: WeatherPresenterProtocol) {
+//        self.presenter = presenter
+//        super.init(nibName: nil, bundle: nil)
+//    }
+//
+//    required init?(coder aDecoder: NSCoder) {
+//        fatalError("init(coder:) has not been implemented")
+//    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+        presenter.viewController = self
         self.getWeather(city: "Joinville")
     }
     

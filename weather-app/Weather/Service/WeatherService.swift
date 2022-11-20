@@ -55,7 +55,7 @@ final class WeatherService: WeatherServiceProtocol {
         }.resume()
     }
     
-    func parseWeatherData(weatherData: WeatherData) -> WeatherModel {
+    private func parseWeatherData(weatherData: WeatherData) -> WeatherModel {
         return WeatherModel(conditionId: weatherData.weather[0].id, cityName: weatherData.name, temperature: weatherData.main.temp, description: weatherData.weather[0].description, lowestTemperature: weatherData.main.temp_min, highestTemperature: weatherData.main.temp_max)
     }
 }
