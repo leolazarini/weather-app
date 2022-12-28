@@ -12,12 +12,18 @@ protocol WeatherPresenterProtocol {
     func getWeather(city: String)
 }
 
+protocol WeatherCoordinatorProtocol {
+    func navigateToResult(weatherModel: WeatherModel)
+}
+
 final class WeatherPresenter: WeatherPresenterProtocol {
     
     private let service: WeatherServiceProtocol
     var viewController: WeatherViewControllerProtocol?
+    var coordinator: WeatherCoordinatorProtocol
     
-    init(service: WeatherServiceProtocol) {
+    init(coordinator: WeatherCoordinatorProtocol, service: WeatherServiceProtocol) {
+        self.coordinator = coordinator
         self.service = service
     }
     
@@ -27,7 +33,7 @@ final class WeatherPresenter: WeatherPresenterProtocol {
             
             switch result {
             case .success(let weatherModel):
-                self.viewController?.setWeather(weatherModel: weatherModel)
+                self.coordinator.navigateToResult(weatherModel: weatherModel)
             case .failure(let error):
                 self.viewController?.presentAlert(message: error.localizedDescription)
             }
